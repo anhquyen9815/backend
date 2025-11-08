@@ -70,7 +70,10 @@ using (var scope = app.Services.CreateScope())
 // ---------------------------------------------------------------
 
 // Cấu hình pipeline
-if (app.Environment.IsDevelopment())
+// Cho phép bật Swagger tạm qua biến môi trường ENABLE_SWAGGER=true
+var enableSwagger = builder.Configuration.GetValue<bool>("ENABLE_SWAGGER", false);
+
+if (enableSwagger || app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();

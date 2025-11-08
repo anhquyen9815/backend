@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -9,21 +8,33 @@ namespace DienMayLongQuyen.Api.Data
 {
     public static class DatabaseInitializer
     {
-        // Gọi method này sau khi build host, trước app.Run()
-        public static async Task InitializeAsync(AppDbContext context, ILogger logger, int maxRetries = 5)
+        /// <summary>
+        /// Khởi tạo DB: (tuỳ chọn) áp migrations, rồi chạy triggers.sql (idempotent).
+        /// </summary>
+        public static async Task InitializeAsync(
+            AppDbContext context,
+            ILogger logger,
+            bool applyMigrations = false,
+            int maxRetries = 5)
         {
             try
             {
-                // 1) Áp migrations (MigrateAsync sẽ chờ lock nội bộ của EF Core)
-                logger.LogInformation("Applying migrations...");
-                await context.Database.MigrateAsync();
-                logger.LogInformation("Migrations applied.");
+                // 1) Tuỳ chọn: áp migrations (để Program.cs kiểm soát)
+                if (applyMigrations)
+                {
+                    logger.LogInformation("Applying migrations...");
+                    await context.Database.MigrateAsync();
+                    logger.LogInformation("Migrations applied.");
+                }
+                else
+                {
+                    logger.LogInformation("Skipping migrations (applyMigrations = false).");
+                }
 
-                // 2) Tìm file triggers trong thư mục chạy (bin/...); thử các đường dẫn phổ biến
-                var baseDir = AppContext.BaseDirectory; // thư mục của app 실행
+                // 2) Tìm triggers.sql
+                var baseDir = AppContext.BaseDirectory;
                 logger.LogInformation("App base directory: {baseDir}", baseDir);
 
-                // thử một vài chỗ: Data/triggers.sql hoặc root triggers.sql
                 var candidatePaths = new[]
                 {
                     Path.Combine(baseDir, "Data", "triggers.sql"),
@@ -32,7 +43,7 @@ namespace DienMayLongQuyen.Api.Data
                     Path.Combine(Directory.GetCurrentDirectory(), "triggers.sql")
                 };
 
-                string filePath = null;
+                string? filePath = null;
                 foreach (var p in candidatePaths)
                 {
                     logger.LogDebug("Checking for triggers file: {p}", p);
@@ -45,14 +56,14 @@ namespace DienMayLongQuyen.Api.Data
 
                 if (filePath == null)
                 {
-                    logger.LogWarning("⚠️ triggers.sql not found in expected locations. Skipping trigger initialization. Looked at: {paths}",
+                    logger.LogWarning("triggers.sql not found. Skipping trigger initialization. Looked at: {paths}",
                         string.Join("; ", candidatePaths));
                     return;
                 }
 
                 logger.LogInformation("Found triggers file: {filePath}", filePath);
 
-                // 3) Đọc nội dung file
+                // 3) Đọc nội dung
                 var sql = await File.ReadAllTextAsync(filePath);
                 if (string.IsNullOrWhiteSpace(sql))
                 {
@@ -60,31 +71,23 @@ namespace DienMayLongQuyen.Api.Data
                     return;
                 }
 
-                // 4) Thực thi SQL với retry nếu gặp lock (SQLite có thể trả lỗi lock nếu DB đang được sử dụng)
-                var attempt = 0;
-                while (true)
+                // 4) Thực thi SQL với retry (SQLite có thể lock)
+                for (int attempt = 1; attempt <= maxRetries; attempt++)
                 {
                     try
                     {
-                        attempt++;
                         logger.LogInformation("Executing triggers (attempt {attempt})...", attempt);
-                        // dùng transaction để an toàn (SQLite hỗ trợ)
                         await using var tx = await context.Database.BeginTransactionAsync();
                         await context.Database.ExecuteSqlRawAsync(sql);
                         await tx.CommitAsync();
                         logger.LogInformation("Triggers executed successfully.");
-                        break;
+                        return;
                     }
                     catch (DbUpdateException dbEx)
                     {
-                        logger.LogWarning(dbEx, "DbUpdateException while executing triggers (attempt {attempt}).", attempt);
-                        if (attempt >= maxRetries) throw;
+                        logger.LogWarning(dbEx, "DbUpdateException while executing triggers (attempt {attempt}).");
+                        if (attempt == maxRetries) throw;
                         await Task.Delay(1000 * attempt); // backoff
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(ex, "Failed to execute triggers.");
-                        throw;
                     }
                 }
             }

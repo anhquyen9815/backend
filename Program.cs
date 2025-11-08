@@ -5,7 +5,6 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
-// builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -32,15 +31,7 @@ builder.Services.AddControllers()
 
 var app = builder.Build();
 
-// Tạo database và seed dữ liệu mẫu
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.EnsureCreated();
-    SeedData.Initialize(db);
-}
-
-// Tự động chạy các trigger
+// --- ÁP MIGRATIONS VÀ CHẠY INITIALIZER (CHỈ 1 NƠI) ---
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -48,15 +39,35 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<AppDbContext>();
-        await DatabaseInitializer.InitializeAsync(context, logger);
+
+        // Chỉ auto-apply migrations trong Development
+        var applyMigrations = app.Environment.IsDevelopment();
+
+        if (applyMigrations)
+        {
+            logger.LogInformation("Environment is Development: migrations will be applied by DatabaseInitializer.");
+        }
+        else
+        {
+            logger.LogInformation("Environment is Production/non-Development: migrations will NOT be auto-applied.");
+        }
+
+        // DatabaseInitializer xử lý: (tuỳ chọn) apply migrations và chạy triggers
+        await DatabaseInitializer.InitializeAsync(context, logger, applyMigrations);
+
+        // Seed dữ liệu idempotent — đảm bảo SeedData.Initialize kiểm tra tồn tại trước khi insert
+        // Ví dụ: if (!context.Brands.Any()) { SeedData.Initialize(context); }
+        SeedData.Initialize(context);
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "An error occurred while initializing the database.");
+        var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
+        var log = loggerFactory.CreateLogger<Program>();
+        log.LogError(ex, "An error occurred while initializing the database.");
+        // Tuỳ chọn: throw; // để app không start nếu DB init thất bại
     }
 }
-
-
+// ---------------------------------------------------------------
 
 // Cấu hình pipeline
 if (app.Environment.IsDevelopment())

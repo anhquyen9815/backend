@@ -1,0 +1,6 @@
+@DienMayLongQuyen.Api_HostAddress = http://localhost:5047
+
+GET {{DienMayLongQuyen.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

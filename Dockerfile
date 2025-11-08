@@ -16,6 +16,9 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/publish ./
 
+# embed the prepared SQLite DB so container has schema/data
+COPY longquyen.db /app/longquyen.db
+
 ENV ASPNETCORE_URLS=http://+:80
 EXPOSE 80
 

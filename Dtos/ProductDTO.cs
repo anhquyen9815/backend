@@ -27,7 +27,7 @@ public class CreateProductDTO
     public int? DiscountPercent { get; set; }
     public int? CategoryId { get; set; }
     public int? BrandId { get; set; }
-    //  public int? WarrantyId { get; set; }
+     public int? WarrantyId { get; set; }
     public string? Image { get; set; }
     public string? Gallery { get; set; }
     public bool? IsActive { get; set; }
@@ -44,7 +44,7 @@ public class UpdateProductDTO
     public int? DiscountPercent { get; set; }
     public int? CategoryId { get; set; }
     public int? BrandId { get; set; }
-    // public int? WarrantyId { get; set; }
+    public int? WarrantyId { get; set; }
     
     public string? Image { get; set; }
     public string? Gallery { get; set; }

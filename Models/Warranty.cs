@@ -20,7 +20,7 @@ namespace DienMayLongQuyen.Api.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
         // public ICollection<ProductWarranty> ProductWarranties { get; set; } = new List<ProductWarranty>();
-        // public ICollection<Product> Products { get; set; } = new List<Product>();
+        public ICollection<Product> Products { get; set; } = new List<Product>();
 
     }
 }

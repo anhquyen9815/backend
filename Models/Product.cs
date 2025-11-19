@@ -24,9 +24,9 @@ namespace DienMayLongQuyen.Api.Models
         public int? BrandId { get; set; }
         public Brand? Brand { get; set; }
 
-        // [ForeignKey("Warranty")]
-        // public int? WarrantyId { get; set; }
-        // public Warranty? Warranty { get; set; }
+        [ForeignKey("Warranty")]
+        public int? WarrantyId { get; set; }
+        public Warranty? Warranty { get; set; }
 
         public decimal Price { get; set; }
         public double? DiscountPrice { get; set; }

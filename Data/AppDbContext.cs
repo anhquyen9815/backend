@@ -72,11 +72,11 @@ namespace DienMayLongQuyen.Api.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
                 // Product - Warranty (1-n)
-            // modelBuilder.Entity<Product>()
-            //     .HasOne(p => p.Warranty)
-            //     .WithMany(w => w.Products)
-            //     .HasForeignKey(p => p.WarrantyId)
-            //     .OnDelete(DeleteBehavior.SetNull); // hoặc Restrict/Cascade theo ý bạn
+            modelBuilder.Entity<Product>()
+                .HasOne(p => p.Warranty)
+                .WithMany(w => w.Products)
+                .HasForeignKey(p => p.WarrantyId)
+                .OnDelete(DeleteBehavior.SetNull); // hoặc Restrict/Cascade theo ý bạn
 
 
             // Product - ProductSpec (1-n)

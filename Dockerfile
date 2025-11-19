@@ -1,42 +1,40 @@
-# ====================================================================
-# STAGE 1: node_build - Xây dựng Frontend (React)
-# ====================================================================
+# STAGE 1: build frontend
 FROM node:20-alpine AS node_build
+WORKDIR /app/fontend
 
-WORKDIR /app/frontend
-# Copy dependencies cần thiết cho Node.js
+# copy package.json từ repo root -> đảm bảo bạn build từ repo root
 COPY fontend/website/package*.json ./
-RUN npm install
-# Copy toàn bộ code Frontend và Build
+RUN npm ci
 COPY fontend/website .
 RUN npm run build
 
 
-# ====================================================================
-# STAGE 2: dotnet_build - Xây dựng Backend (.NET)
-# ====================================================================
+# STAGE 2: build .NET (publish)
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS dotnet_build
+WORKDIR /src
 
-WORKDIR /src/app
-# Copy code .NET
-COPY backend/DienMayLongQuyen.Api .
+# Copy only the backend project folder to avoid path confusion
+# (đảm bảo build context là repo root: `docker build -f backend/DienMayLongQuyen.Api/Dockerfile .`)
+COPY backend/DienMayLongQuyen.Api ./DienMayLongQuyen.Api
 
+# Copy frontend build output into the project's wwwroot BEFORE publish
+RUN mkdir -p DienMayLongQuyen.Api/wwwroot
+COPY --from=node_build /app/fontend/dist ./DienMayLongQuyen.Api/wwwroot
+
+# Restore & publish (chỉ đúng path đã copy)
+WORKDIR /src/DienMayLongQuyen.Api
 RUN dotnet restore "DienMayLongQuyen.Api.csproj"
-
-# LỆNH MỚI: COPY thư mục đã build (dist) TỪ STAGE 1 sang thư mục wwwroot
-# Thư mục wwwroot được tạo trong stage hiện tại.
-RUN mkdir -p wwwroot
-COPY --from=node_build /app/frontend/dist ./wwwroot
-
-# Chạy lệnh Publish
-# Lệnh này sẽ thành công vì không còn kích hoạt các target npm lỗi nữa.
 RUN dotnet publish "DienMayLongQuyen.Api.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 
-# ====================================================================
-# STAGE 3: final - Môi trường Runtime
-# ====================================================================
+# STAGE 3: runtime
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
+
+# Set default listen URL (không dùng ${PORT} lúc build để tránh warning)
+ENV ASPNETCORE_URLS=http://+:80
+
 COPY --from=dotnet_build /app/publish .
+
+# Use PORT env provided by Render at runtime (Render will map external port)
 ENTRYPOINT ["dotnet", "DienMayLongQuyen.Api.dll"]

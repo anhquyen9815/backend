@@ -46,7 +46,7 @@ namespace DienMayLongQuyen.Api.Models
 
         public ICollection<ProductAttributeOption> ProductAttributeOptions { get; set; }
         public ICollection<ProductAttributeValue> ProductAttributeValues { get; set; }
-        public ICollection<ProductWarranty> ProductWarranties { get; set; } = new List<ProductWarranty>();
+        // public ICollection<ProductWarranty> ProductWarranties { get; set; } = new List<ProductWarranty>();
 
 
         // Nếu bạn có dùng ở controller product.ImageUrl thì thêm phần này:

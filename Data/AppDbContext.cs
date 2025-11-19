@@ -25,7 +25,7 @@ namespace DienMayLongQuyen.Api.Data
         public DbSet<ProductAttributeOption> ProductAttributeOptions { get; set; }
         public DbSet<ProductAttributeValue> ProductAttributeValues { get; set; }
         public DbSet<Warranty> Warranties { get; set; }
-        public DbSet<ProductWarranty> ProductWarranties { get; set; }
+        // public DbSet<ProductWarranty> ProductWarranties { get; set; }
 
 
 
@@ -72,11 +72,11 @@ namespace DienMayLongQuyen.Api.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
                 // Product - Warranty (1-n)
-            modelBuilder.Entity<Product>()
-                .HasOne(p => p.Warranty)
-                .WithMany(w => w.Products)
-                .HasForeignKey(p => p.WarrantyId)
-                .OnDelete(DeleteBehavior.SetNull); // hoặc Restrict/Cascade theo ý bạn
+            // modelBuilder.Entity<Product>()
+            //     .HasOne(p => p.Warranty)
+            //     .WithMany(w => w.Products)
+            //     .HasForeignKey(p => p.WarrantyId)
+            //     .OnDelete(DeleteBehavior.SetNull); // hoặc Restrict/Cascade theo ý bạn
 
 
             // Product - ProductSpec (1-n)
@@ -142,21 +142,21 @@ namespace DienMayLongQuyen.Api.Data
                  .HasDatabaseName("IX_ProductAttributeOptions_ProductId_AttributeOptionId");
 
 
-            modelBuilder.Entity<ProductWarranty>()
-                .HasOne(pw => pw.Product)
-                .WithMany(p => p.ProductWarranties)
-                .HasForeignKey(pw => pw.ProductId)
-                .OnDelete(DeleteBehavior.Cascade);
+            // modelBuilder.Entity<ProductWarranty>()
+            //     .HasOne(pw => pw.Product)
+            //     .WithMany(p => p.ProductWarranties)
+            //     .HasForeignKey(pw => pw.ProductId)
+            //     .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<ProductWarranty>()
-                .HasOne(pw => pw.Warranty)
-                .WithMany(w => w.ProductWarranties)
-                .HasForeignKey(pw => pw.WarrantyId)
-                .OnDelete(DeleteBehavior.Cascade);
+            // modelBuilder.Entity<ProductWarranty>()
+            //     .HasOne(pw => pw.Warranty)
+            //     .WithMany(w => w.ProductWarranties)
+            //     .HasForeignKey(pw => pw.WarrantyId)
+            //     .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<ProductWarranty>()
-                .HasIndex(bc => new { bc.ProductId, bc.WarrantyId })
-                .IsUnique();
+            // modelBuilder.Entity<ProductWarranty>()
+            //     .HasIndex(bc => new { bc.ProductId, bc.WarrantyId })
+            //     .IsUnique();
 
             modelBuilder.Entity<BrandCategory>()
             .HasIndex(bc => new { bc.BrandId, bc.CategoryId })

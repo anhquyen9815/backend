@@ -31,8 +31,7 @@ namespace DienMayLongQuyen.Api.Migrations
                     IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     Price = table.Column<string>(type: "TEXT", nullable: false),
-                    Slug = table.Column<string>(type: "TEXT", nullable: false),
-                    WarrantyId = table.Column<int>(type: "INTEGER", nullable: true)
+                    Slug = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -49,18 +48,13 @@ namespace DienMayLongQuyen.Api.Migrations
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Products_Warranties_WarrantyId",
-                        column: x => x.WarrantyId,
-                        principalTable: "Warranties",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+  
                 });
 
             // Copy dữ liệu từ bảng cũ sang bảng tạm (liệt kê đầy đủ cột để tránh lỗi)
             migrationBuilder.Sql(@"
-INSERT INTO ""ef_temp_Products"" (Id, BrandId, CategoryId, Code, CreatedAt, Description, Detail, DiscountPercent, DiscountPrice, Gallery, Image, IsActive, Name, Price, Slug, WarrantyId)
-SELECT Id, BrandId, CategoryId, Code, CreatedAt, Description, Detail, DiscountPercent, DiscountPrice, Gallery, Image, IsActive, Name, Price, Slug, WarrantyId
+INSERT INTO ""ef_temp_Products"" (Id, BrandId, CategoryId, Code, CreatedAt, Description, Detail, DiscountPercent, DiscountPrice, Gallery, Image, IsActive, Name, Price, Slug)
+SELECT Id, BrandId, CategoryId, Code, CreatedAt, Description, Detail, DiscountPercent, DiscountPrice, Gallery, Image, IsActive, Name, Price, Slug
 FROM Products;
 ");
 
@@ -80,11 +74,6 @@ FROM Products;
                 name: "IX_Products_CategoryId",
                 table: "Products",
                 column: "CategoryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Products_WarrantyId",
-                table: "Products",
-                column: "WarrantyId");
 
             // Bật lại kiểm tra FK
             migrationBuilder.Sql("PRAGMA foreign_keys = ON;");

@@ -3,6 +3,7 @@ using System;
 using DienMayLongQuyen.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DienMayLongQuyen.Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251119020323_RemoveWarrantyFromProduct")]
+    partial class RemoveWarrantyFromProduct
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.10");
@@ -274,6 +277,9 @@ namespace DienMayLongQuyen.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    // b.Property<int?>("WarrantyId")
+                    //     .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BrandId");
@@ -282,6 +288,8 @@ namespace DienMayLongQuyen.Api.Migrations
 
                     b.HasIndex("Code")
                         .IsUnique();
+
+                    // b.HasIndex("WarrantyId");
 
                     b.ToTable("Products");
                 });
@@ -482,6 +490,10 @@ namespace DienMayLongQuyen.Api.Migrations
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    // b.HasOne("DienMayLongQuyen.Api.Models.Warranty", null)
+                    //     .WithMany("Products")
+                    //     .HasForeignKey("WarrantyId");
+
                     b.Navigation("Brand");
 
                     b.Navigation("Category");
@@ -585,6 +597,11 @@ namespace DienMayLongQuyen.Api.Migrations
 
                     b.Navigation("Specs");
                 });
+
+            // modelBuilder.Entity("DienMayLongQuyen.Api.Models.Warranty", b =>
+            //     {
+            //         b.Navigation("Products");
+            //     });
 #pragma warning restore 612, 618
         }
     }

@@ -1,16 +1,85 @@
 using DienMayLongQuyen.Api.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
+using System;
 
+// Top-level app
 var builder = WebApplication.CreateBuilder(args);
+
+// --- CONFIGURE SQLITE RUNTIME PATH & SEED COPY LOGIC ------------------
+// runtime DB path (bạn có thể set env var SQLITE_DB_PATH nếu muốn khác)
+var dbPath = Environment.GetEnvironmentVariable("SQLITE_DB_PATH")
+             ?? Path.Combine(builder.Environment.ContentRootPath, "app.db");
+
+// seed DB path inside image (Dockerfile phải copy Seed/longquyen.db vào image)
+var seedPath = Path.Combine(builder.Environment.ContentRootPath, "Seed", "longquyen.db");
+
+// create directory for runtime db if needed
+var dbDir = Path.GetDirectoryName(dbPath);
+if (!string.IsNullOrEmpty(dbDir) && !Directory.Exists(dbDir))
+{
+    Directory.CreateDirectory(dbDir);
+}
+
+// decide whether to force overwrite the runtime DB with seed
+var forceSeed = (Environment.GetEnvironmentVariable("FORCE_SEED") ?? "false").ToLower() == "true";
+
+if (File.Exists(seedPath))
+{
+    try
+    {
+        if (forceSeed)
+        {
+            File.Copy(seedPath, dbPath, overwrite: true);
+            Console.WriteLine($"[DB SEED] FORCE: copied seed DB '{seedPath}' -> '{dbPath}'");
+        }
+        else
+        {
+            if (!File.Exists(dbPath))
+            {
+                File.Copy(seedPath, dbPath);
+                Console.WriteLine($"[DB SEED] copied seed DB '{seedPath}' -> '{dbPath}'");
+            }
+            else
+            {
+                Console.WriteLine($"[DB SEED] runtime DB exists at '{dbPath}', skip copy");
+            }
+        }
+
+        // Attempt to set permissive permissions on Linux so the app can write
+        if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Linux))
+        {
+            try
+            {
+                var p = System.Diagnostics.Process.Start("chmod", $"666 \"{dbPath}\"");
+                p?.WaitForExit();
+            }
+            catch
+            {
+                // ignore chmod failure
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[DB SEED] Copy failed: {ex.Message}");
+    }
+}
+else
+{
+    Console.WriteLine($"[DB SEED] Seed DB not found at '{seedPath}'. Make sure Seed/longquyen.db exists in the repo and Dockerfile copies it.");
+}
+// --------------------------------------------------------------------
 
 // Add services to the container
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Kết nối SQLite
+// Kết nối SQLite — dùng dbPath đã chuẩn bị ở trên
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite($"Data Source={dbPath}"));
 
 // CORS cho React (http://localhost:5173 hoặc http://localhost:3000)
 builder.Services.AddCors(options =>
@@ -30,6 +99,9 @@ builder.Services.AddControllers()
     });
 
 var app = builder.Build();
+
+// Thêm UseStaticFiles cho thư mục wwwroot mặc định
+app.UseStaticFiles();
 
 // --- ÁP MIGRATIONS VÀ CHẠY INITIALIZER (CHỈ 1 NƠI) ---
 using (var scope = app.Services.CreateScope())
@@ -56,7 +128,6 @@ using (var scope = app.Services.CreateScope())
         await DatabaseInitializer.InitializeAsync(context, logger, applyMigrations);
 
         // Seed dữ liệu idempotent — đảm bảo SeedData.Initialize kiểm tra tồn tại trước khi insert
-        // Ví dụ: if (!context.Brands.Any()) { SeedData.Initialize(context); }
         SeedData.Initialize(context);
     }
     catch (Exception ex)
@@ -82,6 +153,12 @@ if (enableSwagger || app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 app.UseAuthorization();
+
+// BẮT ĐẦU CẤU HÌNH ROUTING ĐẦY ĐỦ CHO SPA FALLBACK
+app.UseRouting();
 app.MapControllers();
+
+// *** DÒNG GIẢI QUYẾT LỖI 404 KHI RELOAD ***
+app.MapFallbackToFile("index.html");
 
 app.Run();

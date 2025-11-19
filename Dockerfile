@@ -1,4 +1,5 @@
 # syntax=docker/dockerfile:1
+
 ### build stage
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
@@ -14,10 +15,12 @@ RUN dotnet publish "./DienMayLongQuyen.Api.csproj" -c Release -o /app/publish /p
 ### runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
+
+# copy published app
 COPY --from=build /app/publish ./
 
-# embed the prepared SQLite DB so container has schema/data
-COPY longquyen.db /app/longquyen.db
+# copy SEED database from repo into container
+COPY Seed/longquyen.db /app/Seed/longquyen.db
 
 ENV ASPNETCORE_URLS=http://+:80
 EXPOSE 80

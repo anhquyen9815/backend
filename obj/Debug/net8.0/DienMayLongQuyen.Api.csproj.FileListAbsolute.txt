@@ -320,3 +320,4 @@
 /src/obj/Debug/net8.0/DienMayLongQuyen.Api.genruntimeconfig.cache
 /src/obj/Debug/net8.0/ref/DienMayLongQuyen.Api.dll
 /Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/obj/Debug/net8.0/DienMayLongQuyen.Api.sourcelink.json
+/Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/bin/Debug/net8.0/package-lock.json

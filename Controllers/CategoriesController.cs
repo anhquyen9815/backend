@@ -1,4 +1,3 @@
-using DienMayLongQuyen.Api.Dtos;
 using DienMayLongQuyen.Api.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +23,7 @@ namespace DienMayLongQuyen.Api.Controllers
         public async Task<IActionResult> GetCategories(int page = 1, int pageSize = 10)
         {
             var query = _context.Categories.AsQueryable();
+            query = query.Where(c => c.IsActive == true);
 
             var totalCount = await query.CountAsync();
             var categories = await query

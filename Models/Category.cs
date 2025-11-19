@@ -25,6 +25,7 @@ namespace DienMayLongQuyen.Api.Models
 
         public ICollection<Product> Products { get; set; } = new List<Product>();
         public ICollection<BrandCategory> BrandCategories { get; set; }
+         public ICollection<AttributeDefinition> Attributes { get; set; }
     }
 }
 

@@ -1,4 +1,3 @@
-using DienMayLongQuyen.Api.Dtos;
 using DienMayLongQuyen.Api.Models;
 using DienMayLongQuyen.Api.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +19,7 @@ namespace DienMayLongQuyen.Api.Controllers
 
         // GET list có phân trang
         [HttpGet]
-        public async Task<IActionResult> GetProducts(int page = 1, int pageSize = 10)
+        public async Task<IActionResult> GetProducts(int page = 1, int pageSize = 20)
         {
             var query = _context.Products.AsQueryable();
             var totalCount = await query.CountAsync();
@@ -125,6 +124,7 @@ namespace DienMayLongQuyen.Api.Controllers
                     Code = dto.Code ?? string.Empty,
                     Slug = dto.Slug ?? string.Empty,
                     Image = dto.Image ?? string.Empty,
+                    Gallery = dto.Gallery ?? string.Empty,
                     Description = dto.Description ?? string.Empty,
                     Price = dto.Price ?? 0,
                     DiscountPrice = dto.DiscountPrice ?? 0,
@@ -202,7 +202,10 @@ namespace DienMayLongQuyen.Api.Controllers
             [FromQuery] int? brandId,
             [FromQuery] int? categoryId,
             [FromQuery] SortField? sortBy,
-            [FromQuery] SortOrder? sortOrder
+            [FromQuery] SortOrder? sortOrder,
+            [FromQuery] string? attributeFilters,
+            [FromQuery] double? minPrice,
+            [FromQuery] double? maxPrice
             )
         {
             try
@@ -211,6 +214,8 @@ namespace DienMayLongQuyen.Api.Controllers
                     .Include(p => p.Brand)
                     .Include(p => p.Category)
                     .AsQueryable();
+
+
 
                 if (!string.IsNullOrWhiteSpace(keysearch))
                 {
@@ -227,6 +232,39 @@ namespace DienMayLongQuyen.Api.Controllers
                 if (categoryId.HasValue && categoryId > 0)
                 {
                     query = query.Where(p => p.CategoryId == categoryId);
+                }
+
+                if (minPrice.HasValue)
+                    query = query.Where(p => p.DiscountPrice >= minPrice);
+
+                if (maxPrice.HasValue)
+                    query = query.Where(p => p.DiscountPrice <= maxPrice);
+
+                List<int> optionIds = new();
+                if (!string.IsNullOrWhiteSpace(attributeFilters))
+                {
+                    foreach (var part in attributeFilters
+                                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                .Select(x => x.Trim()))
+                    {
+                        if (int.TryParse(part, out var id))
+                            optionIds.Add(id);
+                        else
+                            return BadRequest(new { message = $"Invalid attribute id '{part}'." });
+                    }
+
+                    optionIds = optionIds.Distinct().ToList();
+                }
+                // Filter theo AttributeOptionId
+                if (optionIds.Any())
+                {
+                    // ALL: product phải có tất cả optionIds
+                    query = query.Where(p =>
+                        p.ProductAttributeOptions
+                         .Where(pa => optionIds.Contains(pa.AttributeOptionId))
+                         .Select(pa => pa.AttributeOptionId)
+                         .Distinct()
+                         .Count() == optionIds.Count);
                 }
 
                 var totalCount = await query.CountAsync();
@@ -279,6 +317,90 @@ namespace DienMayLongQuyen.Api.Controllers
                 return StatusCode(500, new { message = "Lỗi server: " + ex.Message });
             }
         }
+
+        // Controller method
+
+
+        // POST: api/products/bulk-update-gallery
+        [HttpPost("bulk-update-gallery")]
+        public async Task<IActionResult> BulkUpdateGallery([FromBody] List<UpdateProductGalleryDTO> items)
+        {
+            if (items == null || items.Count == 0)
+                return BadRequest(new { message = "Danh sách rỗng" });
+
+            var updated = new List<object>();
+            var skipped = new List<object>();
+
+            foreach (var dto in items)
+            {
+                // basic validation: cần id hoặc code
+                if (dto.IdProduct == null && string.IsNullOrWhiteSpace(dto.CodeProduct))
+                {
+                    skipped.Add(new { dto.IdProduct, dto.CodeProduct, reason = "Thiếu idProduct và codeProduct" });
+                    continue;
+                }
+
+                Product? product = null;
+
+                try
+                {
+                    if (dto.IdProduct != null && dto.IdProduct > 0)
+                    {
+                        product = await _context.Products.FindAsync(dto.IdProduct.Value);
+                    }
+
+                    // nếu chưa tìm bằng id, thử tìm bằng code (case-insensitive)
+                    if (product == null && !string.IsNullOrWhiteSpace(dto.CodeProduct))
+                    {
+                        var code = dto.CodeProduct.Trim();
+                        product = await _context.Products
+                                                .FirstOrDefaultAsync(p => p.Code.Equals(code, StringComparison.OrdinalIgnoreCase));
+                    }
+
+                    if (product == null)
+                    {
+                        skipped.Add(new { dto.IdProduct, dto.CodeProduct, reason = "Không tìm thấy sản phẩm" });
+                        continue;
+                    }
+
+                    // cập nhật Gallery (nếu dto.Gallery null => coi như xóa/clear, tuỳ ý)
+                    product.Gallery = dto.Gallery ?? string.Empty;
+
+                    product.Image = dto.Image ?? string.Empty;
+
+                    // nếu bạn muốn timestamp/updatedBy, cập nhật thêm ở đây
+                    // product.UpdatedAt = DateTime.UtcNow;
+
+                    updated.Add(new { product.Id, product.Code, product.Name, newGallery = product.Gallery, newImage = product.Image });
+
+                    // mark entity modified is not required if tracked; but ensure tracked
+                    _context.Products.Update(product);
+                }
+                catch (Exception ex)
+                {
+                    skipped.Add(new { dto.IdProduct, dto.CodeProduct, reason = "Lỗi khi xử lý", error = ex.Message });
+                }
+            }
+
+            try
+            {
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    message = "Hoàn tất cập nhật gallery",
+                    updatedCount = updated.Count,
+                    skippedCount = skipped.Count,
+                    updated,
+                    skipped
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Đã xảy ra lỗi khi lưu dữ liệu", error = ex.Message });
+            }
+        }
+
 
 
     }

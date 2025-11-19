@@ -1,4 +1,3 @@
-using DienMayLongQuyen.Api.Dtos;
 using DienMayLongQuyen.Api.Models;
 using DienMayLongQuyen.Api.Data;
 using Microsoft.AspNetCore.Mvc;

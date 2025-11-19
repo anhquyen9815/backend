@@ -31,24 +31,24 @@
   <!-- ************************************************************ -->
 
   <Target Name="BuildFrontend" BeforeTargets="Build">
-    <!-- ĐƯỜNG DẪN ĐÃ SỬA: Dùng "../../fontend/website" -->
-    <Message Text="Bắt đầu quá trình build frontend từ thư mục: ../../fontend/website" Importance="high" />
-    <Exec Command="npm install" WorkingDirectory="../../fontend/website" />
-    <Exec Command="npm run build" WorkingDirectory="../../fontend/website" />
+    <!-- ĐƯỜNG DẪN ĐÃ SỬA: Dùng đường dẫn tuyệt đối trong Docker /src/fontend/website -->
+    <Message Text="Bắt đầu quá trình build frontend từ thư mục: /src/fontend/website" Importance="high" />
+    <Exec Command="npm install" WorkingDirectory="/src/fontend/website" />
+    <Exec Command="npm run build" WorkingDirectory="/src/fontend/website" />
   </Target>
 
   <Target Name="CopyFrontendFiles" AfterTargets="BuildFrontend">
-    <Message Text="Sao chép file từ ../../fontend/website/dist sang wwwroot" Importance="high" />
+    <Message Text="Sao chép file từ /src/fontend/website/dist sang wwwroot" Importance="high" />
     
     <!-- 1. Xóa và Tạo lại thư mục wwwroot để đảm bảo đồng bộ -->
     <RemoveDir Directories="wwwroot" />
     <MakeDir Directories="wwwroot" />
 
     <!-- 2. Copy toàn bộ nội dung từ thư mục build của Vite (dist) sang wwwroot -->
-    <!-- Lệnh copy cho Windows -->
-    <Exec Command="xcopy /s /e /y ..\..\fontend\website\dist wwwroot" Condition="'$(OS)' == 'Windows_NT'" />
-    <!-- Lệnh copy cho Unix/macOS -->
-    <Exec Command="cp -r ../../fontend/website/dist/* wwwroot/" Condition="'$(OS)' != 'Windows_NT'" />
+    <!-- Lệnh copy cho Windows (Sửa đường dẫn source) -->
+    <Exec Command="xcopy /s /e /y /src/fontend/website/dist wwwroot" Condition="'$(OS)' == 'Windows_NT'" />
+    <!-- Lệnh copy cho Unix/macOS (Sửa đường dẫn source) -->
+    <Exec Command="cp -r /src/fontend/website/dist/* wwwroot/" Condition="'$(OS)' != 'Windows_NT'" />
   </Target>
   
   <!-- ************************************************************ -->

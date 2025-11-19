@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DienMayLongQuyen.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4b696fcaa185005023c1239299641a36afe9881e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c6a7ea18b2ecb672be6b119c53e12a1c5b338991")]
 [assembly: System.Reflection.AssemblyProductAttribute("DienMayLongQuyen.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DienMayLongQuyen.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

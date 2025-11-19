@@ -215,6 +215,7 @@ namespace DienMayLongQuyen.Api.Controllers
                         bc.Id,
                         bc.BrandId,
                         BrandName = bc.Brand != null ? bc.Brand.Name : null,
+                        BrandLogo = bc.Brand != null ? bc.Brand.LogoUrl : null,
                         bc.CategoryId,
                         CategoryName = bc.Category != null ? bc.Category.Name : null
                     })

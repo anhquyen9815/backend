@@ -1,6 +1,3 @@
-/Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/bin/Release/net8.0/appsettings.Development.json
-/Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/bin/Release/net8.0/appsettings.json
-/Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/bin/Release/net8.0/package-lock.json
 /Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/bin/Release/net8.0/Data/triggers.sql
 /Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/bin/Release/net8.0/DienMayLongQuyen.Api
 /Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/bin/Release/net8.0/DienMayLongQuyen.Api.deps.json
@@ -160,3 +157,4 @@
 /Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/obj/Release/net8.0/DienMayLongQuyen.Api.pdb
 /Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/obj/Release/net8.0/DienMayLongQuyen.Api.genruntimeconfig.cache
 /Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/obj/Release/net8.0/ref/DienMayLongQuyen.Api.dll
+/Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/bin/Release/net8.0/DienMayLongQuyen.Api.staticwebassets.runtime.json

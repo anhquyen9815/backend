@@ -4,6 +4,8 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- THÊM DÒNG NÀY: Giải quyết lỗi NETSDK1022 Duplicate 'Content' khi publish -->
+    <EnableDefaultContentItems>false</EnableDefaultContentItems>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,7 +22,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
 
-    <!-- DÒNG QUAN TRỌNG: Đảm bảo wwwroot được đóng gói khi publish lên Render -->
+    <!-- Giữ lại dòng này: Đảm bảo wwwroot được đóng gói (vì đã tắt tính năng mặc định) -->
     <Content Include="wwwroot\**" CopyToPublishDirectory="Always" />
   </ItemGroup>
 
@@ -29,7 +31,7 @@
   <!-- ************************************************************ -->
 
   <Target Name="BuildFrontend" BeforeTargets="Build">
-    <!-- ĐƯỜNG DẪN ĐÃ SỬA: Dùng "../../fontend/website" để đi lên 2 cấp, vào fontend, rồi vào website -->
+    <!-- ĐƯỜNG DẪN ĐÃ SỬA: Dùng "../../fontend/website" -->
     <Message Text="Bắt đầu quá trình build frontend từ thư mục: ../../fontend/website" Importance="high" />
     <Exec Command="npm install" WorkingDirectory="../../fontend/website" />
     <Exec Command="npm run build" WorkingDirectory="../../fontend/website" />

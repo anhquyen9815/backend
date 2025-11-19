@@ -1,12 +1,4 @@
 /Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/output/DienMayLongQuyen.Api
-/Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/output/appsettings.Development.json
-/Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/output/appsettings.json
-/Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/output/package-lock.json
-/Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/output/wwwroot/assets/index-Bd-9Amus.js
-/Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/output/wwwroot/assets/index-Bs5vlql1.css
-/Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/output/wwwroot/assets/logo-BfXD5ec3.png
-/Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/output/wwwroot/index.html
-/Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/output/wwwroot/vite.svg
 /Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/output/Data/triggers.sql
 /Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/output/DienMayLongQuyen.Api.dll
 /Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/output/DienMayLongQuyen.Api.runtimeconfig.json

@@ -1,0 +1,41 @@
+{
+  "Files": [
+    {
+      "Id": "/Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/wwwroot/assets/index-Bd-9Amus.js",
+      "PackagePath": "staticwebassets/assets/index-Bd-9Amus.js"
+    },
+    {
+      "Id": "/Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/wwwroot/assets/index-Bs5vlql1.css",
+      "PackagePath": "staticwebassets/assets/index-Bs5vlql1.css"
+    },
+    {
+      "Id": "/Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/wwwroot/assets/logo-BfXD5ec3.png",
+      "PackagePath": "staticwebassets/assets/logo-BfXD5ec3.png"
+    },
+    {
+      "Id": "/Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/wwwroot/index.html",
+      "PackagePath": "staticwebassets/index.html"
+    },
+    {
+      "Id": "/Users/IT/Documents/MyWeb/backend/DienMayLongQuyen.Api/wwwroot/vite.svg",
+      "PackagePath": "staticwebassets/vite.svg"
+    },
+    {
+      "Id": "obj/Release/net8.0/staticwebassets/msbuild.DienMayLongQuyen.Api.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj/Release/net8.0/staticwebassets/msbuild.build.DienMayLongQuyen.Api.props",
+      "PackagePath": "build\\DienMayLongQuyen.Api.props"
+    },
+    {
+      "Id": "obj/Release/net8.0/staticwebassets/msbuild.buildMultiTargeting.DienMayLongQuyen.Api.props",
+      "PackagePath": "buildMultiTargeting\\DienMayLongQuyen.Api.props"
+    },
+    {
+      "Id": "obj/Release/net8.0/staticwebassets/msbuild.buildTransitive.DienMayLongQuyen.Api.props",
+      "PackagePath": "buildTransitive\\DienMayLongQuyen.Api.props"
+    }
+  ],
+  "ElementsToRemove": []
+}
